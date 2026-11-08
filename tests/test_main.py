@@ -26,6 +26,7 @@ def test_health_returns_ok():
 
 
 def test_ready_returns_ready_when_database_is_up(monkeypatch):
+    monkeypatch.setattr(main, "DATABASE_URL", "postgresql://fake")
     monkeypatch.setattr(main, "get_connection", lambda: FakeConnection())
 
     response = client.get("/ready")
@@ -40,6 +41,16 @@ def test_ready_returns_503_when_database_is_down(monkeypatch):
     response = client.get("/ready")
 
     assert response.status_code == 503
+    assert response.json() == {"detail": "database unavailable"}
+
+
+def test_ready_returns_503_when_database_not_configured(monkeypatch):
+    monkeypatch.setattr(main, "DATABASE_URL", None)
+
+    response = client.get("/ready")
+
+    assert response.status_code == 503
+    assert response.json() == {"detail": "database not configured"}
 
 
 def test_root_returns_service_info():

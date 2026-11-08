@@ -29,10 +29,12 @@ def health():
 @app.get("/ready")
 def ready():
     # readiness: can we actually serve traffic? check the database
+    if not DATABASE_URL:
+        raise HTTPException(status_code=503, detail="database not configured")
     try:
         with get_connection() as conn:
             conn.execute("SELECT 1")
-    except Exception:
+    except psycopg.Error:
         raise HTTPException(status_code=503, detail="database unavailable")
     return {"status": "ready"}
 
