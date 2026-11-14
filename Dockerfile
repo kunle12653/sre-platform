@@ -9,7 +9,8 @@ ENV PATH="/opt/venv/bin:$PATH"
 
 # Copy only the requirements first, so this layer is cached
 COPY app/requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt \
+    && pip uninstall -y pip
 
 
 # ---------- Stage 2: the final, minimal image ----------
@@ -20,8 +21,16 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PATH="/opt/venv/bin:$PATH"
 
+# Apply OS security updates not yet included in the base image
+RUN apt-get update \
+    && apt-get upgrade -y \
+    && rm -rf /var/lib/apt/lists/*
+
 # Create a non-root user to run the app
 RUN useradd --create-home --uid 10001 appuser
+
+# Remove pip from the runtime image: not needed at runtime, and it bundles vulnerable libraries
+RUN python -m pip uninstall -y pip
 
 WORKDIR /home/appuser
 
