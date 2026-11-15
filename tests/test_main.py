@@ -58,3 +58,12 @@ def test_root_returns_service_info():
 
     assert response.status_code == 200
     assert response.json()["service"] == "sre-platform"
+
+
+def test_version_returns_version(monkeypatch):
+    monkeypatch.setattr(main, "APP_VERSION", "1.2.3")
+
+    response = client.get("/version")
+
+    assert response.status_code == 200
+    assert response.json() == {"version": "1.2.3"}
