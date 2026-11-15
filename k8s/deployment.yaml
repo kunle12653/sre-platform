@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sre-platform-app
+  namespace: sre-platform
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: sre-platform-app
+  template:
+    metadata:
+      labels:
+        app: sre-platform-app
+    spec:
+      containers:
+        - name: app
+          image: ghcr.io/kunle12653/sre-platform:37e133b7ac3d8abebe5793c85f3dcbb73cf81457
+          ports:
+            - containerPort: 8000
+          env:
+            - name: APP_ENV
+              value: kind
