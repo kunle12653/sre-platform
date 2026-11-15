@@ -7,6 +7,7 @@ from pydantic import BaseModel
 app = FastAPI()
 
 APP_ENV = os.getenv("APP_ENV", "local")
+APP_VERSION = os.getenv("APP_VERSION", "dev")
 DATABASE_URL = os.getenv("DATABASE_URL")  # no default: credentials never live in code
 
 
@@ -65,3 +66,8 @@ def list_items():
     for row in rows:
         items.append({"id": row[0], "name": row[1], "created_at": row[2]})
     return items
+
+
+@app.get("/version")
+def version():
+    return {"version": APP_VERSION}
